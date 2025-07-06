@@ -18,15 +18,15 @@ class GS2DMeshUtils:
         rgbmaps = []
         depthmaps = []
 
-        for i, viewpoint_cam in tqdm(enumerate(cameras), total=len(cameras), desc="Rendering RGB and depth maps"):
-            render_pkg = renderer(viewpoint_cam, model, bg_color)
-            rgb = render_pkg['render']
+        #for i, viewpoint_cam in tqdm(enumerate(cameras), total=len(cameras), desc="Rendering RGB and depth maps"):
+            #render_pkg = renderer(viewpoint_cam, model, bg_color)
+            #rgb = render_pkg['render']
             # alpha = render_pkg['rend_alpha']
             # normal = torch.nn.functional.normalize(render_pkg['rend_normal'], dim=0)
-            depth = render_pkg['surf_depth']
+            #depth = render_pkg['surf_depth']
             # depth_normal = render_pkg['surf_normal']
-            rgbmaps.append(rgb.cpu())
-            depthmaps.append(depth.cpu())
+            #rgbmaps.append(rgb.cpu())
+            #depthmaps.append(depth.cpu())
             # self.alphamaps.append(alpha.cpu())
             # self.normals.append(normal.cpu())
             # self.depth_normals.append(depth_normal.cpu())
@@ -145,7 +145,7 @@ class GS2DMeshUtils:
     @torch.no_grad()
     def extract_mesh_unbounded(cls, maps, bound, cameras: Iterable, model, resolution: int = 1024):
         """
-        Experimental features, extracting meshes from unbounded scenes, not fully test across datasets. 
+        Experimental features, extracting meshes from unbounded scenes, not fully test across datasets.
         return o3d.mesh
         """
         def contract(x):
@@ -276,6 +276,9 @@ class GS2DMeshUtils:
         cls,
         maps,
         cameras,
+        model,
+        renderer,
+        bg_color,
         voxel_size=0.004,
         sdf_trunc=0.02,
         depth_trunc=3,
@@ -304,10 +307,11 @@ class GS2DMeshUtils:
             color_type=o3d.pipelines.integration.TSDFVolumeColorType.RGB8
         )
 
-        with tqdm(enumerate(cls.to_cam_open3d(cameras)), total=len(cameras), desc="TSDF integration progress") as t:
+        with tqdm(enumerate(cameras), total=len(cameras), desc="TSDF integration progress") as t:
             for i, cam_o3d in t:
-                rgb = rgbmaps[i]
-                depth = depthmaps[i]
+                render_pkg = renderer(cam_o3d, model, bg_color)
+                rgb = render_pkg['render']
+                depth = render_pkg['surf_depth']
 
                 # if we have mask provided, use it
                 assert mask_backgrond is False
@@ -322,6 +326,7 @@ class GS2DMeshUtils:
                     depth_scale=1.0
                 )
 
+                cam_o3d = cls.to_cam_open3d([cam_o3d])[0]  # convert to open3d camera
                 volume.integrate(rgbd, intrinsic=cam_o3d.intrinsic, extrinsic=cam_o3d.extrinsic)
 
         mesh = volume.extract_triangle_mesh()

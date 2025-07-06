@@ -111,7 +111,7 @@ def main():
         depth_trunc = (radius * 2.0) if args.depth_trunc < 0 else args.depth_trunc
         voxel_size = (depth_trunc / args.mesh_res) if args.voxel_size < 0 else args.voxel_size
         sdf_trunc = 5.0 * voxel_size if args.sdf_trunc < 0 else args.sdf_trunc
-        mesh = GS2DMeshUtils.extract_mesh_bounded(maps=maps, cameras=cameras, voxel_size=voxel_size, sdf_trunc=sdf_trunc, depth_trunc=depth_trunc)
+        mesh = GS2DMeshUtils.extract_mesh_bounded(maps=maps, cameras=cameras, model=model, renderer=renderer, bg_color=bg_color, voxel_size=voxel_size, sdf_trunc=sdf_trunc, depth_trunc=depth_trunc)
 
     output_dir = args.model_path
     if os.path.isfile(output_dir):

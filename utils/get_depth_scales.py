@@ -50,6 +50,10 @@ def get_scales(key, cameras, images, points3d_ordered, points3d_error_ordered, a
     pts_idx = pts_idx[mask]
     valid_xys = image_meta.xys[mask]
 
+    # filter non integer values for pts_idx
+    if pts_idx.dtype != np.int64:
+        pts_idx = pts_idx.astype(np.int64)
+
     # reduce outliers
     pts_errors = points3d_error_ordered[pts_idx]
     valid_errors = pts_errors < args.point_max_error

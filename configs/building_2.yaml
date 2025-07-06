@@ -1,0 +1,25 @@
+model:
+  initialize_from: outputs/building_coarse_2/checkpoints/epoch=28-step=50000.ckpt
+  overwrite_config: False
+  gaussian:
+    init_args:
+      sh_degree: 3
+      optimization:
+        means_lr_init: 0.000064
+        means_lr_scheduler:
+          lr_final: 0.00000064
+        scales_lr: 0.004
+  renderer: internal.renderers.vanilla_trim_renderer.VanillaTrimRenderer
+trainer:
+  check_val_every_n_epoch: 20
+  max_steps: 30000
+data:
+  path: data/mill19/building-pixsfm/train
+  parser:
+    class_path: EstimatedDepthBlockColmap
+    init_args:
+      down_sample_factor: 2
+      content_threshold: 0.05
+      block_dim:  # removed z dimension
+      - 5
+      - 5

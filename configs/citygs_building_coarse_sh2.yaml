@@ -1,0 +1,21 @@
+model:
+  gaussian:
+    init_args:
+      sh_degree: 3
+  renderer:
+    class_path: internal.renderers.vanilla_trim_renderer.VanillaTrimRenderer
+    init_args:
+      diable_trimming: true
+  overwrite_config: True
+trainer:
+  check_val_every_n_epoch: 20
+  max_steps: 30000
+data:
+  path: data/mill19/building-pixsfm/train
+  parser:
+    class_path: EstimatedDepthBlockColmap
+    init_args:
+      split_mode: experiment
+      eval_image_select_mode: ratio
+      eval_ratio: 0.1
+      down_sample_factor: 2

@@ -1,0 +1,48 @@
+model:
+  initialize_from: outputs/lausanne_center_coarse/checkpoints/epoch=18-step=30000.ckpt
+  overwrite_config: False
+  gaussian:
+    init_args:
+      sh_degree: 2
+      optimization:
+        means_lr_init: 5e-5
+        means_lr_scheduler:
+          lr_final: 5e-7
+          max_steps: 30_000
+        scales_lr: 0.001
+  background_color:
+    - 52.9
+    - 80.8
+    - 92.2
+  renderer:
+    class_path: internal.renderers.vanilla_trim_renderer.VanillaTrimRenderer
+    init_args:
+      prune_ratio: 0.3
+      diable_trimming: true
+
+trainer:
+  check_val_every_n_epoch: 100
+  max_steps: 30000
+
+data:
+  path: data/lausanne_center
+  parser:
+    class_path: EstimatedDepthBlockColmap
+    init_args:
+      down_sample_factor: 4
+      depth_scale_lower_bound: 0.01
+      depth_scale_upper_bound: 50.0
+      content_threshold: 0.05
+      block_dim:  # removed z dimension
+      - 3
+      - 3
+
+  num_workers: 2
+  add_background_sphere: true
+
+save_iterations:
+- 1000
+- 5000
+- 10000
+- 20000
+- 30000
